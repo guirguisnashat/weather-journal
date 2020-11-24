@@ -12,8 +12,7 @@ const content=document.getElementById('content');
 // Create a new date instance dynamically with JS
 let d = new Date();
 //d=Date.now();
-let newDate = d.getMonth()+'.'+ d.getDate()+'.'+ d.getFullYear();
-
+let newDate = d.getDate()+'-'+ (parseInt(d.getMonth())+1).toString()+'-'+ d.getFullYear();
 
 
 
@@ -31,8 +30,19 @@ document.getElementById('generate').addEventListener('click', performAction);
 
 function performAction(e){
 const newAnimal =  document.getElementById('zip').value;
-getAnimal(baseURL,newAnimal,'33c4b756494ec6877b3d1d89efa6d75f')
+const feel=document.getElementById("feelings").value;
+getAnimal(baseURL,newAnimal,'33c4b756494ec6877b3d1d89efa6d75f').then(function(data){
+ // postData('/addmovie',{zip:newAnimal,feeling:feel,temp:temp});
+});
+//postData('/addmovie',{zip:newAnimal,feeling:feel,temp:0});
+//retrieveData('/gettemp');
+}
 
+function postGet(data1={}){
+  postData('/addmovie', data1)
+    .then(function(data){
+      retrieveData('/gettemp')
+    })
 }
 const getAnimal = async (baseURL, animal, key)=>{
 
@@ -40,15 +50,20 @@ const getAnimal = async (baseURL, animal, key)=>{
   const res = await fetch(f)
   try {
 
-    const data = await res.json();
-    console.log(data.main.temp)
     const date=document.getElementById('date');
     const tempo=document.getElementById('temp');
     const content=document.getElementById('content');
     const feel=document.getElementById('feelings');
-    date.innerHTML="Date now : "+newDate;
+    const zip=document.getElementById('zip').value;
+    const data = await res.json().then(function(data){
+      postData('/addmovie',{date:newDate,feeling:feel.value,temp:data.main.temp});
+      retrieveData('/gettemp');
+    });
+    //console.log(data.main.temp)
+    
+    /*date.innerHTML="Date now : "+newDate;
     tempo.innerHTML="Temperature now : "+data.main.temp;
-    content.innerHTML="My feeling now : "+feel.value;
+    content.innerHTML="My feeling now : "+feel.value;*/
     return data;
   }  catch(error) {
     console.log("error", error);
@@ -61,10 +76,10 @@ const getAnimal = async (baseURL, animal, key)=>{
 
 // Async POST
 const postData = async ( url = '', data = {})=>{
-
+  console.log(data)
     const response = await fetch(url, {
-    method: 'POST', 
-    credentials: 'same-origin', 
+    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+    credentials: 'same-origin', // include, *same-origin, omit
     headers: {
         'Content-Type': 'application/json',
     },
@@ -73,11 +88,15 @@ const postData = async ( url = '', data = {})=>{
 
     try {
       const newData = await response.json();
-      return newData;
+      // console.log(newData);
+      return newData
     }catch(error) {
     console.log("error", error);
+    // appropriately handle the error
     }
-};
+}
+
+
 
 // Async GET
 const retrieveData = async (url='') =>{ 
@@ -85,21 +104,17 @@ const retrieveData = async (url='') =>{
   try {
   // Transform into JSON
   const allData = await request.json()
+  console.log(allData);
+  const date=document.getElementById('date');
+  const tempo=document.getElementById('temp');
+  const content=document.getElementById('content');
+  const feel=document.getElementById('feelings');
+  date.innerHTML="Date now : "+allData['date'];
+  tempo.innerHTML="Temperature now : "+allData['temp'];
+  content.innerHTML="My feeling now : "+allData['feeling'];
   }
   catch(error) {
     console.log("error", error);
     // appropriately handle the error
   }
 };
-
-// TODO-Chain your async functions to post an animal then GET the resulting data
-
-// TODO-Call the chained function
-
-function postGet(){
-    postData('/animal', {fav:'lion'})
-      .then(function(data){
-        retrieveData('/all')
-      })
-  }
-  
