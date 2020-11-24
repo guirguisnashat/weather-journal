@@ -1,10 +1,14 @@
 // Setup empty JS object to act as endpoint for all routes
-projectData = {};
+const key='33c4b756494ec6877b3d1d89efa6d75f';
+const baseURL=''
+
 
 // Require Express to run server and routes
 const express=require('express');
 // Start up an instance of app
 const app=express();
+
+const fetch = require("node-fetch");
 /* Middleware*/
 const bodyParser=require('body-parser');
 //Here we are configuring express to use body-parser as middle-ware.
@@ -27,34 +31,31 @@ const server = app.listen(port, ()=>{
     console.log(`running on localhost: ${port}`)
 });
 
-/*
-// GET route
-app.get('/all', sendData);
 
-function sendData (request, response) {
-  response.send(projectData);
+
+let data=[];
+let date=0,feel="",tempo=0;
+
+
+app.post('/addmovie',addmovie);
+
+function addmovie(req,res){
+  data.push(req.body);
+  date=req.body.date;
+  feel=req.body.feeling;
+  tempo=req.body.temp;
+}
+
+
+
+app.get("/gettemp",doit);
+
+
+function doit(req,res){
+  res.send({date:date,feeling:feel,temp:tempo});
 };
 
-// TODO-ROUTES!
 
-app.post('/all',postfunction);
 
-function postfunction(req,res){
-    console.log('POST received');
-    
-}
-*/
 
-app.post('/addAnimal', addAnimal);
 
-function addAnimal(req,res){
-
-  newEntry = {
-    animal: req.body.animal,
-    facts: req.body.fact,
-    fav: req.body.fav
-  }
-
-  animalData.push(newEntry)
-  console.log(animalData)
-}
